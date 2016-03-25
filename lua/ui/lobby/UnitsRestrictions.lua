@@ -22,12 +22,10 @@ local presetsRestrictions = {}
 -- add AIR, TECH, UEF to  	/units/uea0001_unit.bp Engineering Drone
  
 -- TODO for next version of Units Manager:
--- Ideally, each Weapon in a blueprint should have a new Categories table that identifies type of weapon (e.g. tml)
--- This way, Units Manager could restrict units by type of weapon in addition to checking 
--- Categories of the blueprint. 
+-- use Categories of Weapon (see projectile blueprints) to restrict units 
 -- -------------------------------------------------------------------------------------------
 
--- defining expressions in single place for celerity and re-usability purpose in CreatePresets()
+--- defines expressions in single place for celerity and re-usability purpose in CreatePresets()
 Expressions = {
 	     
 -- NOTE use this process for defining new expressions that will restrict units in game and mods (units packs):
@@ -148,7 +146,7 @@ Expressions = {
 	INTELCOUNTER = "(STRUCTURE * COUNTERINTELLIGENCE)",
 	INTELAIR     = "(AIR * (SCOUT + OMNI + RADAR + SONAR) - BOMBER - GROUNDATTACK - ANTIAIR - ANTINAVY)",
 } 
--- note that enhancements are defined in tables and not in strings like category expressions are 
+--- note that enhancements are defined in tables and not in strings like category expressions are 
 local enhancements = {
     TELE =    { "Teleporter", 
                 "TeleporterRemove"},
@@ -170,8 +168,7 @@ local enhancements = {
                 "PodRemove" 	   	-- SCU Engineering Drone C-D2  
 	},
 } 
-
--- defines sorting of preset restrictions and used in UnitsManager.lua
+--- defines sorting of preset restrictions and used in UnitsManager.lua
 local presetsOrder = {
 	"T1",
     "T2",
@@ -688,6 +685,7 @@ function GetPresetsData()
 	end
 	return presetsRestrictions
 end
+--- Returns order of presets
 function GetPresetsOrder()
 	-- ensure restriction presets are generated before accessing order 
 	GetPresetsData()

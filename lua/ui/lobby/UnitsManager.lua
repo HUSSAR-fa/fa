@@ -36,8 +36,8 @@ local restrictions = { Custom = {}, Presets = {}, Stats = {} }
  
 local statsText = nil 
 local unitFontSize = 13
-local dialogMaxWidth = 1920  -- used for determing scaling of icons/fonts
-local dialogMaxHeight = 1200 -- used for determing scaling of icons/fonts
+local dialogMaxWidth = 1920  -- used to determine scaling of icons/fonts
+local dialogMaxHeight = 1200 -- used to determine scaling of icons/fonts
 local dialogScrollWidth = 15
 local factionsCount = 4  -- TODO increase when NOMADS added to FAF
 local factionsGroups = 9 -- e.g. NAVAL, AIR, LAND, FACTORIES, ECO, SUPPORT, DEFENCES, COMMANDSER, enhancements
@@ -48,7 +48,7 @@ local cellSize = 0 -- calculated when dialog is created
 -- units matching first entry will be placed as first item in a column
 -- if two units match the first entry then the next entry is used for comparing
 local sortBy = {
-    -- order bluprints first by their TECH level and then WEAPON categories
+    -- order blueprints first by their TECH level and then WEAPON categories
     TECH = { 
          'TECH1', 
          'TECH2',
@@ -67,7 +67,7 @@ local sortBy = {
          'INDIRECTFIRE',
          'ARTILLERY',
     },
-    -- order bluprints first by their WEAPON categories and then TECH level
+    -- order blueprints first by their WEAPON categories and then TECH level
     WEAPON = {
          'DIRECTFIRE', 
          'ANTIAIR',
@@ -127,7 +127,7 @@ local sortBy = {
      'SUBCOMMANDER', 
      'UPGRADE',             -- created in UnitsAnalyzer
      'ISPREENHANCEDUNIT',  
-     --NOTE this order ensure that ACU/SCU have similar upgades next to each other
+     --NOTE this order ensure that ACU/SCU have similar upgrades next to each other
      'Overcharge',
      'EngineeringThroughput',
      'ResourceAllocation',
@@ -187,7 +187,7 @@ local sortBy = {
 -- toggles in this popup should be initially selected.
 -- @param OnOk - a function that will be passed the new set of selected keys 
 -- if the dialog is closed via the "OK" button.
--- @param OnCancel A function to be called if the dialog is cancelled.
+-- @param OnCancel A function to be called if the dialog is canceled.
 -- @param isHost If false, the control will be read-only.
 --==============================================================================
 function CreateDialog(parent, initial, OnOk, OnCancel, isHost)
@@ -338,9 +338,7 @@ function CreateDialog(parent, initial, OnOk, OnCancel, isHost)
 		column = CreateGridColumn(name, faction.Bases.SUPPORT, column,sortBy.SUPPORT)
 		column = CreateGridColumn(name, faction.Bases.DEFENSES, column,sortBy.WEAPON)
 		column = CreateGridColumn(name, faction.Units.SCU, column,sortBy.UPGRADES)
-		column = CreateGridColumn(name, faction.Units.ACU, column,sortBy.UPGRADES)
-		--column = CreateGridColumn(name, faction.UPGRADES, column)
-	    --column = CreateGridColumn(name, faction.SUBCOMMANDERS, column)
+		column = CreateGridColumn(name, faction.Units.ACU, column,sortBy.UPGRADES) 
     end
 	unitsGrid:EndBatch()
 	if not unitsGrid:IsScrollable("Vert") then
@@ -387,8 +385,7 @@ end
 function UpdateRestrictionsUI(newRestrictions)
     -- order of updating restrictions is important and 
     -- custom restrictions must be set first
-    -- then preset restrictions or state of checkboxes will be wrong
-    --LOG('setting restrictions... ')
+    -- then preset restrictions or state of checkboxes will be wrong 
     for _, restriction in newRestrictions do
 	    if checkboxes.Units[restriction] then
 		    restrictions.Custom[restriction] = true
@@ -448,8 +445,7 @@ function GetTooltip(bp)
 end
 
 local UnitsTooltip = import('/lua/ui/lobby/UnitsTooltip.lua')
-
-
+ 
 function CreateUnitIcon(parent, bp, faction)
 	
 	local colors = {}
@@ -570,7 +566,7 @@ function CreateUnitIcon(parent, bp, faction)
 		techUI:SetText(bp.Tech or '') 
 		checkbox.selector = fill
 
-        --TODO add startegic icons on top of unit icons
+        --TODO add strategics icons on top of unit icons
         --imagePath = nil
         --if bp.Tech == 'T1' then
         --    imagePath = '/textures/ui/common/icons/tags/t1.dds'
@@ -950,7 +946,7 @@ end
 --- compares two units using their categories
 --- @param a - first blueprint
 --- @param b - second blueprint
---- @param sortCategories - table with sort catergories
+--- @param sortCategories - table with sort categories
 --- @param sortReversed - optional boolean for sorting in revers of order specified in sortCategories
 function CompareUnitsOrder(a, b, sortCategories, sortReversed, depth, item)	 
 	--LOG('Compare ' .. a.Name .. ' ' .. b.Name)

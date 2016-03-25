@@ -1,8 +1,8 @@
 -- ******************************************************************************************
 -- * File		: lua/modules/ui/lobby/UnitsAnalyzer.lua 
 -- * Authors	: FAF Community, HUSSAR
--- * Summary  	: Provides logic on UI/lobby side for managing blueprints (Units, Structures, Enhancments) 
--- *              using their IDs, CATEGORIES, TECH lebels, FACTION affinity, etc. 
+-- * Summary  	: Provides logic on UI/lobby side for managing blueprints (Units, Structures, Enhancements) 
+-- *              using their IDs, CATEGORIES, TECH labels, FACTION affinity, etc. 
 -- ******************************************************************************************
    
 --local sub = string.sub
@@ -14,16 +14,16 @@ local bpIndex = 1
   
 local cached = { Images = {}, Tooltips = {} }
  
--- stores blueprints of units and extracted enhancments 
--- similar to Sim's __blueprints but accessable on UI/lobby side
+-- stores blueprints of units and extracted enhancements 
+-- similar to Sim's __blueprints but accessible on UI/lobby side
 local blueprints = { All = {}, Original = {}, Modified = {}, Skipped = {} }
 local projectiles = { All = {}, Original = {}, Modified = {}, Skipped = {} }
 
  -- manages logs messages based on their type/importance/source 
 local logsTypes = {
     ["WARNING"] = true,  -- recommend to keep it always true
-    ["SAVING"]  = false, -- enable only for debbuging
-    ["PARSING"] = false, -- enable only for debbuging
+    ["SAVING"]  = false, -- enable only for debugging
+    ["PARSING"] = false, -- enable only for debugging
     ["STATUS"] = true,
 }
    
@@ -223,9 +223,6 @@ function GetUnitName(bp)
     if bp.Interface.HelpText then
         name = bp.Interface.HelpText
     else
-        if not bp.Merge then
-            Show('WARNING', bp.Info..' - missing bp.Interface.HelpText')
-        end
 		if bp.General.UnitName then
             name = bp.General.UnitName
         elseif not bp.Merge then
@@ -321,7 +318,7 @@ function GetImagePath(bp, faction)
 			return name 
 		end
 	end
-	-- next overrid icon if one exist in mod textures
+	-- next find an icon if one exist in mod's textures folder
 	if bp.Mod then
 		root = bp.Mod.location
 		for _,path in paths do
@@ -340,7 +337,7 @@ function GetImagePath(bp, faction)
 			end
 		end
 	end 
-    -- if not found icon for the blueprint
+    -- default to unknown icon if not found icon for the blueprint
     local unknown = '/textures/ui/common/icons/unknown-icon.dds'
 	cached.Images[faction..id] = unknown
 	return unknown 
@@ -409,7 +406,7 @@ end
 -- Some calculation based on this code
 -- https://github.com/spooky/unitdb/blob/master/app/js/dps.js
 
---- gets shots pers second of specified weapon (inverse of RateOfFire)
+--- gets shots per second of specified weapon (inverse of RateOfFire)
 function GetWeaponRatePerSecond(bp, weapon)
     local rate = weapon.RateOfFire or 1
     return math.round(10 / rate) / 10 -- ticks per second
@@ -435,7 +432,7 @@ end
 --- Get specs for a weapon with projectiles 
 function GetWeaponProjectile(bp, weapon)
     -- multipliers is needed to properly calculate split projectiles. 
-    -- Unfortunately these numbers hardcoded here are not available in the blueprint,
+    -- Unfortunately these numbers hard-coded here are not available in the blueprint,
     -- but specified in the .lua files for corresponding projectiles.
     local multipliers = {  
         -- Lobo
@@ -443,18 +440,19 @@ function GetWeaponProjectile(bp, weapon)
         -- Zthuee
         ['/projectiles/SIFThunthoArtilleryShell01/SIFThunthoArtilleryShell01_proj.bp'] = 5 
     }
-    --TODO mulit damage of Salvation by AOE
 
-    --NOTE that weapon.ProjectilesPerOnFire is not used at all in FA game
     if weapon.ProjectileId then
        weapon.Multi = multipliers[weapon.ProjectileId] or 1
     end 
-
+    
+    --NOTE that weapon.ProjectilesPerOnFire is not used at all in FA game
     if weapon.MuzzleSalvoSize == nil then 
         WARN('Weapon missing MuzzleSalvoSize ' .. tostring(weapon.DisplayName))
     else
         weapon.Multi = weapon.Multi * weapon.MuzzleSalvoSize
     end
+    --TODO multiply damage of Salvation by AOE or save as it as Damage potential
+
     -- get nuke damage or regular damage
     weapon.Damage = weapon.NukeInnerRingDamage or weapon.Damage
       
@@ -494,8 +492,8 @@ function GetWeaponBeamPulse(bp, weapon)
     end
     return weapon
 end
---- Get specs for a weapon with continous beam
-function GetWeaponBeamContinous(bp, weapon)
+--- Get specs for a weapon with continuous beam
+function GetWeaponBeamContinuous(bp, weapon)
     if weapon.ContinuousBeam then
        weapon.Multi = 10  
        -- rate per second
@@ -525,8 +523,8 @@ function GetWeaponSpecs(bp, weapon)
         --LOG('GetWeaponDOT')
         weapon = GetWeaponDOT(bp, weapon)
     elseif weapon.ContinuousBeam then
-        --LOG('GetWeaponBeamContinous')
-        weapon = GetWeaponBeamContinous(bp, weapon)
+        --LOG('GetWeaponBeamContinuous')
+        weapon = GetWeaponBeamContinuous(bp, weapon)
     elseif weapon.BeamLifetime then
         --LOG('GetWeaponBeamPulse')
         weapon = GetWeaponBeamPulse(bp, weapon)
@@ -559,7 +557,7 @@ function GetWeaponsStats(bp)
            weapons[id] = weapon   
         end
     end   
-    -- groupping weapons based on their name/category
+    -- grouping weapons based on their name/category
     local groupWeapons = {}
     for i, weapon in weapons do
         local id = weapon.DisplayName .. '' .. weapon.Category
@@ -703,7 +701,7 @@ function ContainsCategory(unit, value)
 end
 --- Checks if a unit contains categories in specified expression    
 --- e.g. Contains(unit, '(LAND * ENGINEER) + AIR')
---- this function is simialar to ParseEntityCategoryProperly (CategoryUtils.lua) 
+--- this function is similar to ParseEntityCategoryProperly (CategoryUtils.lua) 
 --- but it works on UI/lobby side
 function Contains(unit, expression) 
 	if not expression or expression == '' or 
@@ -872,7 +870,7 @@ function GetUnitsGroups(bps, factionName)
     faction.Name = factionName
 	faction.Blueprints		= GetUnits(bps, factionName) 
 	faction.Units = {}
-    -- grupping ACU/SCU upgrades in seprate tables because they have different cost/stats
+    -- grouping ACU/SCU upgrades in separate tables because they have different cost/stats
 	faction.Units.ACU = GetUnits(faction.Blueprints, 'COMMAND + UPGRADE - SUBCOMMANDER')
 	faction.Units.SCU = GetUnits(faction.Blueprints, 'SUBCOMMANDER + UPGRADE - COMMAND')
 	faction.Units.ALL 		= GetUnits(bps, '('..factionName..' - UPGRADE - COMMAND - SUBCOMMANDER)' ) 
@@ -887,7 +885,7 @@ function GetUnitsGroups(bps, factionName)
 	
 	faction.Bases.DEFENSES	= {}
 	-- collect not grouped units above tables into the DEFENSES table
-    -- this way we don't miss showing ungroupped units 
+    -- this way we don't miss showing un-grouped units 
 	for ID, bp in faction.Blueprints do
 		if not faction.Units.ACU[ID] and 
 		   not faction.Units.SCU[ID] and  
@@ -905,7 +903,7 @@ function GetUnitsGroups(bps, factionName)
      
 	return faction
 end
---- Cache enhancements as new blueprints with Categories, Faction from thier parent (unit) blueprints 
+--- Cache enhancements as new blueprints with Categories, Faction from their parent (unit) blueprints 
 local function CacheEnhancement(key, bp, name, enh)	
     --Show('SAVING', name .. '...')
     local categories = {}
@@ -924,7 +922,7 @@ local function CacheEnhancement(key, bp, name, enh)
 		categories['SUBCOMMANDER'] = true
 		--categories['UPGRADE_SCU'] = true
 	end
-    -- create some extra categoeries used for ordering enhancements in UI  
+    -- create some extra categories used for ordering enhancements in UI  
 	if enh.Slot then
 		local slot = string.upper(enh.Slot)
 		if slot == 'LCH' then

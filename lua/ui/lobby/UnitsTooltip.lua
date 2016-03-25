@@ -26,14 +26,14 @@ local fontDigital   = "Zeroes Three"
 local fontBold      = 'Arial Bold' 
 
 local fontTextSize = 14
-local fontTextName = UIUtil.bodyFont -- fontMono --'Butterbelly' --fontMono
-local fontValueName = UIUtil.bodyFont  --fontDigital
+local fontTextName = UIUtil.bodyFont  
+local fontValueName = UIUtil.bodyFont   
 local fontValueSize = 15
 
 local iconSize = 16
    
 local tooltipWidth = 470
-local tooltipHeight = 20 -- inital tooltipHeight
+local tooltipHeight = 20 -- initial tooltipHeight
 
 local colorMass    = 'FF79c400' -- #FF79c400   
 local colorEnergy  = 'FFFCCB10' -- #FFFCCB10

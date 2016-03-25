@@ -26,7 +26,7 @@
 --   off the source file name. (Units don't have this problem because the BlueprintId is
 --   shortened and doesn't include the original path).
 --
---   Third, a mod can can contain a blueprint with the same ID as an existing blueprint,
+--   Third, a mod can contain a blueprint with the same ID as an existing blueprint,
 --   and with the special field "Merge = true". This causes the mod to be merged with,
 --   rather than replace, the original blueprint.
 --
@@ -97,8 +97,6 @@ local function StoreBlueprint(group, bp)
         t[id] = bp
     end
 end
-
-
 --
 -- Figure out what to name this blueprint based on the name of the file it came from.
 -- Returns the entire filename. Either this or SetLongId() should really be got rid of.
@@ -107,8 +105,6 @@ local function SetBackwardsCompatId(bp)
     bp.Source = bp.Source or GetSource()
     bp.BlueprintId = lower(bp.Source)
 end
-
-
 --
 -- Figure out what to name this blueprint based on the name of the file it came from.
 -- Returns the full resource name except with ".bp" stripped off
@@ -122,8 +118,6 @@ local function SetLongId(bp)
         bp.BlueprintId = id
     end
 end
-
-
 --
 -- Figure out what to name this blueprint based on the name of the file it came from.
 -- Returns just the base filename, without any blueprint type info or extension. Used
@@ -134,8 +128,6 @@ local function SetShortId(bp)
     bp.BlueprintId = bp.BlueprintId or
         gsub(lower(bp.Source), "^.*/([^/]+)_[a-z]+%.bp$", "%1")
 end
-
-
 --
 -- If the bp contains a 'Mesh' section, move that over to a separate Mesh blueprint, and
 -- point bp.MeshBlueprint at it.
@@ -346,17 +338,18 @@ function HandleUnitWithBuildPresets(bps, all_bps)
             local e, m, t = 0, 0, 0
             if not preset.BuildCostEnergyOverride or not preset.BuildCostMassOverride or not preset.BuildTimeOverride then
                 for k, enh in preset.Enhancements do
-                    if not tempBp.Enhancements[enh] then
+                    -- replaced continue by reversing if statement
+                    if tempBp.Enhancements[enh] then
+                        e = e + (tempBp.Enhancements[enh].BuildCostEnergy or 0)
+                        m = m + (tempBp.Enhancements[enh].BuildCostMass or 0)
+                        t = t + (tempBp.Enhancements[enh].BuildTime or 0)
+                        -- HUSSAR added name of the enhancement so that preset units cannot be built 
+                        -- if they have restricted enhancement(s)
+                        table.insert(tempBp.Categories, enh) -- do not change case of enhancements
+                    else
                         WARN('*DEBUG: Enhancement '..repr(enh)..' used in preset '..repr(name)..' for unit '..repr(tempBp.BlueprintId)..' does not exist')
-                        continue
                     end
-                    e = e + (tempBp.Enhancements[enh].BuildCostEnergy or 0)
-                    m = m + (tempBp.Enhancements[enh].BuildCostMass or 0)
-                    t = t + (tempBp.Enhancements[enh].BuildTime or 0)
-					
-                    -- adds name of the enhancement so that preset units cannot be built if they have restricted enhancement(s)
-                    table.insert(tempBp.Categories, enh) -- do not change case of enhancements
-		end
+		        end
             end
             tempBp.Economy.BuildCostEnergy = preset.BuildCostEnergyOverride or (tempBp.Economy.BuildCostEnergy + e)
             tempBp.Economy.BuildCostMass = preset.BuildCostMassOverride or (tempBp.Economy.BuildCostMass + m)
@@ -547,17 +540,17 @@ function PostModBlueprints(all_bps)
         end
 
         if cats.USEBUILDPRESETS then
-	    -- HUSSAR adding logic for finding issues in enhancements table
+	        -- HUSSAR adding logic for finding issues in enhancements table
             local issues = {}
-            if not bp.Enhancements then table.insert(issues, 'no Enhancements') end
-            if type(bp.Enhancements) ~= 'table' then table.insert(issues, 'invalid Enhancements') end
-            if not bp.EnhancementPresets then table.insert(issues, 'no EnhancementPresets') end
-            if type(bp.EnhancementPresets) ~= 'table' then table.insert(issues, 'invalid EnhancementPresets') end
+            if not bp.Enhancements then table.insert(issues, 'no Enhancements value') end
+            if type(bp.Enhancements) ~= 'table' then table.insert(issues, 'no Enhancements table') end
+            if not bp.EnhancementPresets then table.insert(issues, 'no EnhancementPresets value') end
+            if type(bp.EnhancementPresets) ~= 'table' then table.insert(issues, 'no EnhancementPresets table') end
             -- check blueprint, if correct info for presets then put this unit on the list to handle later
             if table.getsize(issues) == 0 then
                 table.insert(preset_bps, table.deepcopy(bp))
             else
-		issues = table.concat(issues,', ') 
+		        issues = table.concat(issues,', ') 
                 WARN('UnitBlueprint '..repr(bp.BlueprintId)..' has a category USEBUILDPRESETS but ' .. issues)
             end
         end
@@ -567,7 +560,7 @@ function PostModBlueprints(all_bps)
 
     HandleUnitWithBuildPresets(preset_bps, all_bps)
 end
---==============================================================================
+-----------------------------------------------------------------------------------------------
 --- Loads all blueprints with optional parameters
 --- @param pattern           - specifies pattern of files to load, defaults to '*.bp'
 --- @param mods              - specifies table of mods to load blueprints from, defaults to active mods
@@ -579,7 +572,6 @@ end
 --- UI  -> LoadBlueprints('*_unit.bp', mods, true, true, true)  used in ModsManager.lua 
 --- UI  -> LoadBlueprints('*_unit.bp', mods, false, true, true) used in UnitsAnalyzer.lua 
 function LoadBlueprints(pattern, mods, skipGameFiles, skipExtraction, skipRegistration)
-
 
     -- set default parameters if they are not provided
     if not pattern then pattern = '*.bp' end
@@ -648,8 +640,6 @@ function LoadBlueprints(pattern, mods, skipGameFiles, skipExtraction, skipRegist
 	end
 
 end
-
-
 -- Reload a single blueprint
 function ReloadBlueprint(file)
     InitOriginalBlueprints()
